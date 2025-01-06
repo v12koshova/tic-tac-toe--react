@@ -14,18 +14,18 @@ type PropsType = {
 
 function ModalWindow({ game, dispatch, rival }: PropsType) {
   const [modalOpen, setModalOpen] = useState(false)
-  const [gif, setGif] = useState('tic-tac-toe--react/images/happy0.gif')
+  const [gif, setGif] = useState(process.env.PUBLIC_URL + '/images/happy0.gif')
 
   useEffect(() => {
     if (game.isOver) {
       const index:number = Math.floor(Math.random() * 5)
 
       if (rival === 'computer' && game.result === 'o') {
-        setGif(`tic-tac-toe--react/images/sad${index}.gif`)
+        setGif(process.env.PUBLIC_URL + `/images/sad${index}.gif`)
       } else if (rival === 'computer' && game.result === 'x') {
-        setGif(`tic-tac-toe--react/images/happy${index}.gif`)
+        setGif(process.env.PUBLIC_URL + `/images/happy${index}.gif`)
       } else {
-        setGif(`tic-tac-toe--react/images/waiting${index}.gif`)
+        setGif(process.env.PUBLIC_URL + `/images/waiting${index}.gif`)
       }
       
       setTimeout(() => setModalOpen(true), 1500)
