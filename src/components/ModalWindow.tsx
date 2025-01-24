@@ -3,7 +3,7 @@ import { FieldType, GameOverType, ReducerActionType, StateType } from '../types/
 import { ACTIONS } from '../constants'
 import congrats from '../assets/sounds/congrats.mp3'
 import { playSnd } from '../utils/soundUtils';
-import { get, ref, update } from 'firebase/database';
+import { get, ref, set, update } from 'firebase/database';
 import { db } from '../firebase';
 
 export const end = new Audio(congrats);
@@ -33,19 +33,13 @@ function ModalWindow({ state, dispatch }: PropsType) {
       setTimeout(() => setModalOpen(true), 1500)
       setTimeout(() => playSnd(end), 1500)
       if (state.online) {
-        update(ref(db, `rooms/${state.online.roomId}/modals/`), {
-          [state.online.player]: true,
-        })
-        update(ref(db, `rooms/${state.online.roomId}/`), {
-          turn: state.turn,
-        })
+        set(ref(db, `rooms/${state.online.roomId}/modals/${state.online.player}`), true)
+        set(ref(db, `rooms/${state.online.roomId}/turn`), `${state.turn}`)
       }
     } else {
       setModalOpen(false)
       if (state.online) {
-        update(ref(db, `rooms/${state.online.roomId}/modals/`), {
-          [state.online.player]: false,
-        })
+        set(ref(db, `rooms/${state.online.roomId}/modals/${state.online.player}`), false)
       }
     }
   }, [game.isOver])
@@ -56,9 +50,7 @@ function ModalWindow({ state, dispatch }: PropsType) {
     const clearField: FieldType = ['', '', '', '', '', '', '', '', ''];
 
     if (state.online) {
-      update(ref(db, `rooms/${state.online.roomId}`), {
-        field: clearField,
-      })
+      set(ref(db, `rooms/${state.online.roomId}/field`), clearField)
       update(ref(db, `rooms/${state.online.roomId}/winCounter`), {
         ...state.winCounter,
       })

@@ -22,7 +22,9 @@ function RoomModalWindow({ dispatch }: PropsType) {
                 try {
                     const snapshot = await get(ref(db, 'rooms'))
                     if (snapshot.exists()) {
-                        setRooms(Object.keys(snapshot.val()))
+                        const rooms = snapshot.val()
+                        const freeRooms = Object.keys(rooms).filter((r: string) => Object.values(rooms[r].players).some(p => !p)) 
+                        setRooms(freeRooms)
                     }
                 } catch {
                     throw new Error
@@ -50,8 +52,6 @@ function RoomModalWindow({ dispatch }: PropsType) {
             try {
                 await createRoom(roomInputRef.current?.value, nameRef.current?.value)
                 dispatch({ type: ACTIONS.CREATE_ROOM, roomName: roomInputRef?.current.value, name: nameRef?.current.value })
-                console.log();
-                
             } catch (err) {
                 console.log('Failed to create a room:', err);
             }

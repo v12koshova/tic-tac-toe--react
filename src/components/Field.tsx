@@ -1,9 +1,9 @@
-import React, { MouseEvent, useEffect, useState } from 'react'
+import React, { MouseEvent, useEffect, useRef, useState } from 'react'
 import { ACTIONS } from '../constants'
 import { ReducerActionType, StateType } from '../types/types'
 import thinkingGif from '../assets/images/thinking.gif';
 import waitingGif from '../assets/images/waiting5.gif';
-import { onDisconnect, onValue, ref, update } from 'firebase/database';
+import { onDisconnect, onValue, ref, update, remove } from 'firebase/database';
 import { db } from '../firebase';
 import { getInfo } from '../utils/gameUtils';
 import { flushSync } from 'react-dom';
@@ -17,6 +17,7 @@ type PropsType = {
 function Field({ dispatch, state }: PropsType) {
     const [gameOn, setGameOn] = useState(false)
     const [players, setPlayers] = useState({ x: '', o: '' })
+    const [handleRoom, setHandleRoom] = useState<'set' | 'delete'>('delete')
 
     useEffect(() => {
         if (!state.online) {
@@ -75,18 +76,33 @@ function Field({ dispatch, state }: PropsType) {
     useEffect(() => {
 
         if (state.online) {
-            
-            const playersRef = ref(db, `rooms/${state.online.roomId}/players`);
 
-            onDisconnect(playersRef).update({ [state.online.player]: '' });
+            const playersRef = ref(db, `rooms/${state.online.roomId}/players/`);
+            const roomRef = ref(db, `rooms/${state.online.roomId}/`);
+
+            if (handleRoom === 'delete') {
+                onDisconnect(roomRef).remove();
+
+            }  else if (handleRoom === 'set') {
+                onDisconnect(roomRef).cancel()
+                onDisconnect(ref(db, `rooms/${state.online.roomId}/players/${state.online?.player}`)).set('');
+                onDisconnect(ref(db, `rooms/${state.online.roomId}/modals/${state.online?.player}`)).set(true);
+            }
 
             const unsubscribe = onValue(playersRef, (snapshot) => {
-                
+
                 handleUpdateCounter()
 
                 if (snapshot.exists()) {
                     const values = Object.values(snapshot.val())
-                    
+                    const activePlayers = Object.values(values).filter(p => p !== '').length;
+
+                    if (activePlayers === 2) {
+                        setHandleRoom('set')
+                    } else if (activePlayers === 1) {
+                        setHandleRoom('delete')
+                    }
+
                     if (!values.every(p => p === '')) {
                         setGameOn(values.every(p => p !== ''))
                     }
@@ -96,29 +112,8 @@ function Field({ dispatch, state }: PropsType) {
 
             return () => unsubscribe();
         }
-    }, [state.online?.roomId]);
+    }, [state.online?.roomId, handleRoom]);
 
-
-    useEffect(() => {
-        if (state.online) {
-            const modalsRef = ref(db, `rooms/${state.online.roomId}/modals`);
-
-            onDisconnect(modalsRef).update({ [state.online.player]: true });
-
-            const unsubscribe = onValue(modalsRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const values = Object.values(snapshot.val())
-                    console.log(values);
-
-                    setGameOn(values.every(p => !p))
-
-                }
-
-            });
-
-            return () => unsubscribe();
-        }
-    }, [state.online?.roomId]);
 
     const handleResetWinHistory = async () => {
         dispatch({ type: ACTIONS.RESET_HISTORY })
@@ -133,11 +128,12 @@ function Field({ dispatch, state }: PropsType) {
     }
     const handleResetGame = async () => {
         flushSync(() => {
-        dispatch({ type: ACTIONS.RESET_GAME })
-    })
+            dispatch({ type: ACTIONS.RESET_GAME })
+        })
 
         if (state.online) {
             await update(ref(db, `rooms/${state.online?.roomId}/players`), { [state.online.player]: '' })
+            setPlayers({x: '', o: ''})
         }
 
         dispatch({ type: ACTIONS.RESET_GAME })
@@ -170,8 +166,8 @@ function Field({ dispatch, state }: PropsType) {
                 </div>
             </div>
             <div className="reset-buttons">
-                <button onClick={ handleResetWinHistory } className="btn">Reset win History</button>
-                <button onClick={ handleResetGame } className="btn">Reset Game</button>
+                <button onClick={handleResetWinHistory} className="btn">Reset win History</button>
+                <button onClick={handleResetGame} className="btn">Reset Game</button>
             </div>
             <div className={`field ${state.turn === 'o' ? 'turnO' : 'turnX'}`}>
                 {
