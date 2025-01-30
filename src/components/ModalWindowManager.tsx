@@ -12,7 +12,7 @@ type PropsType = {
 function ModalWindowManager({ dispatch, state }: PropsType) {
     switch (state.modalType) {
         case 'initial':
-            return <InitialModalWindow dispatch={dispatch} rival={state.rival} />
+            return <InitialModalWindow dispatch={dispatch} />
         case 'online':
             return <RoomModalWindow dispatch={dispatch} />
         case 'result':

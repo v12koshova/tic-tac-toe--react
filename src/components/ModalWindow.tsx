@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { FieldType, GameOverType, ReducerActionType, StateType } from '../types/types'
+import { FieldType, ReducerActionType, StateType } from '../types/types'
 import { ACTIONS } from '../constants'
 import congrats from '../assets/sounds/congrats.mp3'
 import { playSnd } from '../utils/soundUtils';
-import { get, ref, set, update } from 'firebase/database';
+import { ref, set, update } from 'firebase/database';
 import { db } from '../firebase';
 
 export const end = new Audio(congrats);
@@ -35,6 +35,9 @@ function ModalWindow({ state, dispatch }: PropsType) {
       if (state.online) {
         set(ref(db, `rooms/${state.online.roomId}/modals/${state.online.player}`), true)
         set(ref(db, `rooms/${state.online.roomId}/turn`), `${state.turn}`)
+        update(ref(db, `rooms/${state.online.roomId}/winCounter`), {
+          ...state.winCounter,
+        })
       }
     } else {
       setModalOpen(false)
@@ -51,9 +54,6 @@ function ModalWindow({ state, dispatch }: PropsType) {
 
     if (state.online) {
       set(ref(db, `rooms/${state.online.roomId}/field`), clearField)
-      update(ref(db, `rooms/${state.online.roomId}/winCounter`), {
-        ...state.winCounter,
-      })
     }
 
     dispatch({ type: ACTIONS.NEW_GAME, newFieldState: clearField })

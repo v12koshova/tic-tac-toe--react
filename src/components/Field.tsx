@@ -1,9 +1,9 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useEffect, useState } from 'react'
 import { ACTIONS } from '../constants'
 import { ReducerActionType, StateType } from '../types/types'
 import thinkingGif from '../assets/images/thinking.gif';
 import waitingGif from '../assets/images/waiting5.gif';
-import { onDisconnect, onValue, ref, update, remove } from 'firebase/database';
+import { onDisconnect, onValue, ref, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getInfo } from '../utils/gameUtils';
 import { flushSync } from 'react-dom';
