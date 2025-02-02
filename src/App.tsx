@@ -94,7 +94,7 @@ const reducer = (state: StateType, action: ReducerActionType): StateType => {
     }
 
     default:
-      throw new Error('Undefined type of action')
+      return initialState
   }
 }
 

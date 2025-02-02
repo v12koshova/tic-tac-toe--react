@@ -135,8 +135,6 @@ function Field({ dispatch, state }: PropsType) {
             await update(ref(db, `rooms/${state.online?.roomId}/players`), { [state.online.player]: '' })
             setPlayers({x: '', o: ''})
         }
-
-        dispatch({ type: ACTIONS.RESET_GAME })
     }
 
 
