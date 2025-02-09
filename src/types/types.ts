@@ -33,7 +33,7 @@ export type ReducerActionType = {
   roomName?: string,
   name?: string,
   player?: string,
-  counter?:WinCounterType,
+  counter?: WinCounterType,
   turn?: 'x' | 'o'
 }
 

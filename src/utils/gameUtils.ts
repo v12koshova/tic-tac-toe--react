@@ -10,7 +10,7 @@ export const checkField = (state: StateType, newFieldState: FieldType, player: '
   let winnerField: FieldType = [...newFieldState]
 
   for (let i = 0; i < WINNER_COMBINATIONS.length; i++) {
-    if (WINNER_COMBINATIONS[i].every(c => newFieldState[c] === player )) {
+    if (WINNER_COMBINATIONS[i].every(c => newFieldState[c] === player)) {
       WINNER_COMBINATIONS[i].forEach(c => winnerField[c] = `${player} win`)
       gameState = {
         isOver: true,
@@ -81,7 +81,7 @@ export const computerMove = (state: StateType) => {
 
 }
 
-export const createRoom =  async(roomName: string, name: string) => {
+export const createRoom = async (roomName: string, name: string) => {
   const newRef = ref(db, `rooms/${roomName}`)
   set(newRef, {
     players: {
@@ -109,19 +109,19 @@ export const joinRoom = async (roomName: string, name: string) => {
 
   if (snapshot.exists()) {
     const player = snapshot.val().players['o'] ? 'x' : 'o'
-    
-      update(ref(db, `rooms/${roomName}`), {
-        ...snapshot.val(),
-        players: {
-          ...snapshot.val().players,
-          [player]: name
-        },
-        modals: {
-          ...snapshot.val().modals,
-          [player]: false
-        },
-      })
-      return player 
+
+    update(ref(db, `rooms/${roomName}`), {
+      ...snapshot.val(),
+      players: {
+        ...snapshot.val().players,
+        [player]: name
+      },
+      modals: {
+        ...snapshot.val().modals,
+        [player]: false
+      },
+    })
+    return player
 
   } else {
     throw new Error
@@ -135,8 +135,8 @@ export const getInfo = async (roomName: string) => {
     if (snapshot.exists()) {
       const values = snapshot.val()
       return {
-        winCounter: {...values.winCounter},
-        players: {...values.players},
+        winCounter: { ...values.winCounter },
+        players: { ...values.players },
         turn: values.turn
       }
     }

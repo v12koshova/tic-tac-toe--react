@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ReducerActionType } from '../types/types'
 import { ACTIONS } from '../constants'
-import { db } from '../firebase'
+import { auth, db } from '../firebase'
 import { get, ref } from 'firebase/database'
 import { createRoom, joinRoom } from '../utils/gameUtils'
+import { signInAnonymously, User } from 'firebase/auth'
 
 type PropsType = {
     dispatch: React.Dispatch<ReducerActionType>
@@ -23,7 +24,10 @@ function RoomModalWindow({ dispatch }: PropsType) {
                     const snapshot = await get(ref(db, 'rooms'))
                     if (snapshot.exists()) {
                         const rooms = snapshot.val()
-                        const freeRooms = Object.keys(rooms).filter((r: string) => Object.values(rooms[r].players).some(p => !p)) 
+                        const freeRooms = Object.keys(rooms).filter((r: string) =>
+                            Object.values(rooms[r].players).some(p => p === "")
+                        );
+
                         setRooms(freeRooms)
                     }
                 } catch {
@@ -36,10 +40,11 @@ function RoomModalWindow({ dispatch }: PropsType) {
     }, [])
 
     const handleJoinRoom = async () => {
-        if (roomSelectRef.current?.value && nameRef?.current?.value) {
+        if (roomSelectRef.current?.value && nameRef.current?.value) {
             try {
+                await signInAnonymously(auth);
+
                 const player = await joinRoom(roomSelectRef.current?.value, nameRef?.current?.value)
-                
                 dispatch({ type: ACTIONS.JOIN_ROOM, roomName: roomSelectRef.current?.value, player })
             } catch (err) {
                 console.log('Failed to join a room:', err);
@@ -50,8 +55,10 @@ function RoomModalWindow({ dispatch }: PropsType) {
     const handleCreateRoom = async () => {
         if (roomInputRef.current?.value && nameRef.current?.value) {
             try {
+                await signInAnonymously(auth);
                 await createRoom(roomInputRef.current?.value, nameRef.current?.value)
                 dispatch({ type: ACTIONS.CREATE_ROOM, roomName: roomInputRef?.current.value, name: nameRef?.current.value })
+
             } catch (err) {
                 console.log('Failed to create a room:', err);
             }

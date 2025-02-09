@@ -83,7 +83,7 @@ function Field({ dispatch, state }: PropsType) {
             if (handleRoom === 'delete') {
                 onDisconnect(roomRef).remove();
 
-            }  else if (handleRoom === 'set') {
+            } else if (handleRoom === 'set') {
                 onDisconnect(roomRef).cancel()
                 onDisconnect(ref(db, `rooms/${state.online.roomId}/players/${state.online?.player}`)).set('');
                 onDisconnect(ref(db, `rooms/${state.online.roomId}/modals/${state.online?.player}`)).set(true);
@@ -133,7 +133,7 @@ function Field({ dispatch, state }: PropsType) {
 
         if (state.online) {
             await update(ref(db, `rooms/${state.online?.roomId}/players`), { [state.online.player]: '' })
-            setPlayers({x: '', o: ''})
+            setPlayers({ x: '', o: '' })
         }
     }
 
