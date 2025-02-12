@@ -1,4 +1,5 @@
 # Tic-Tac-Toe Project
+## Link: https://v12koshova.github.io/tic-tac-toe--react/
 
 This is a Tic-Tac-Toe game built with React and TypeScript, featuring three game modes:
 - Offline Mode – Play with a friend on the same device.
@@ -11,7 +12,7 @@ This is a Tic-Tac-Toe game built with React and TypeScript, featuring three game
 - Firebase Realtime Database – Real-time data synchronization for online gameplay.
 
 ### Features
-✔️ Simple and intuitive UI.
-✔️ Three game modes: offline, AI, and online.
-✔️ Real-time multiplayer support via Firebase.
-✔️ Responsive design for desktop and mobile.
+- Simple and intuitive UI.
+- Three game modes: offline, AI, and online.
+- Real-time multiplayer support via Firebase.
+- Responsive design for desktop and mobile.
