@@ -1,9 +1,9 @@
 import { get, ref, set, update } from "firebase/database";
 import { WINNER_COMBINATIONS } from "../constants";
-import { FieldType, GameOverType, StateType } from "../types/types";
+import { FieldType, GameOverType, StateType, TurnType } from "../types/types";
 import { db } from "../firebase";
 
-export const checkField = (state: StateType, newFieldState: FieldType, player: 'x' | 'o') => {
+export const checkField = (state: StateType, newFieldState: FieldType, player: TurnType) => {
   let gameState: GameOverType = {
     isOver: false
   }
@@ -36,7 +36,7 @@ export const checkField = (state: StateType, newFieldState: FieldType, player: '
     };
   }
 
-  return { ...state, field: newFieldState, turn: (player === 'o' ? 'x' : 'o') as 'x' | 'o' }
+  return { ...state, field: newFieldState, turn: (player === 'o' ? 'x' : 'o') as TurnType }
 }
 
 export const setRandomCell = (newFieldState: FieldType): number => {
@@ -47,7 +47,7 @@ export const setRandomCell = (newFieldState: FieldType): number => {
   return cell
 }
 
-export const findMove = (newFieldState: FieldType, player: 'x' | 'o') => {
+export const findMove = (newFieldState: FieldType, player: TurnType) => {
   for (let i = 0; i < WINNER_COMBINATIONS.length; i++) {
     const [a, b, c] = WINNER_COMBINATIONS[i];
 

@@ -3,11 +3,11 @@ import { ReducerActionType } from '../types/types'
 import { ACTIONS } from '../constants'
 import hiGif from '../assets/images/hello.gif'
 
-type PropsType = {
+type InitialModalWindowType = {
     dispatch: React.Dispatch<ReducerActionType>
 }
 
-function InitialModalWindow({ dispatch }: PropsType) {
+function InitialModalWindow({ dispatch }: InitialModalWindowType) {
     return (
         <div className="modal">
             <div className="modal-box">

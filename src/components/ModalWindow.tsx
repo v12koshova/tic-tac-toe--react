@@ -8,12 +8,12 @@ import { db } from '../firebase';
 
 export const end = new Audio(congrats);
 
-type PropsType = {
+type ModalWindowType = {
   state: StateType,
   dispatch: React.Dispatch<ReducerActionType>,
 }
 
-function ModalWindow({ state, dispatch }: PropsType) {
+function ModalWindow({ state, dispatch }: ModalWindowType) {
   const { game, rival } = state
   const [modalOpen, setModalOpen] = useState(false)
   const [gif, setGif] = useState(process.env.PUBLIC_URL + '/images/happy0.gif')

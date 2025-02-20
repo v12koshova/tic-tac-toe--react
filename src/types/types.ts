@@ -4,13 +4,15 @@ export type WinCounterType = {
   d: number;
 }
 
+export type TurnType = 'x' | 'o'
+
 export type GameOverType = {
   isOver: boolean,
   result?: 'x' | 'o' | 'd'
 }
 
 export type StateType = {
-  turn: 'x' | 'o',
+  turn: TurnType,
   winCounter: {
     o: number,
     x: number,
@@ -34,7 +36,7 @@ export type ReducerActionType = {
   name?: string,
   player?: string,
   counter?: WinCounterType,
-  turn?: 'x' | 'o'
+  turn?: TurnType
 }
 
 export type FieldType = string[]

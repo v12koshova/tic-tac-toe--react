@@ -6,11 +6,11 @@ import { get, ref } from 'firebase/database'
 import { createRoom, joinRoom } from '../utils/gameUtils'
 import { signInAnonymously, User } from 'firebase/auth'
 
-type PropsType = {
+type RoomModalWindowType = {
     dispatch: React.Dispatch<ReducerActionType>
 }
 
-function RoomModalWindow({ dispatch }: PropsType) {
+function RoomModalWindow({ dispatch }: RoomModalWindowType) {
     const [room, setRoom] = useState<'join' | 'create'>('join')
     const [rooms, setRooms] = useState<string[]>([])
     const nameRef = useRef<HTMLInputElement | null>(null);

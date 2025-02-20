@@ -4,12 +4,12 @@ import InitialModalWindow from './InitialModalWindow'
 import ModalWindow from './ModalWindow'
 import RoomModalWindow from './RoomModalWindow'
 
-type PropsType = {
+type ModalWindowManagerType = {
     state: StateType,
     dispatch: React.Dispatch<ReducerActionType>
 }
 
-function ModalWindowManager({ dispatch, state }: PropsType) {
+function ModalWindowManager({ dispatch, state }: ModalWindowManagerType) {
     switch (state.modalType) {
         case 'initial':
             return <InitialModalWindow dispatch={dispatch} />

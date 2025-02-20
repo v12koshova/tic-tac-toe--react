@@ -9,38 +9,39 @@ import { getInfo } from '../utils/gameUtils';
 import { flushSync } from 'react-dom';
 
 
-type PropsType = {
+type FieldType = {
     state: StateType,
     dispatch: React.Dispatch<ReducerActionType>
 }
 
-function Field({ dispatch, state }: PropsType) {
+function Field({ dispatch, state }: FieldType) {
     const [gameOn, setGameOn] = useState(false)
     const [players, setPlayers] = useState({ x: '', o: '' })
     const [handleRoom, setHandleRoom] = useState<'set' | 'delete'>('delete')
+    const { online, modalType, field, turn, rival } = state
 
     useEffect(() => {
-        if (!state.online) {
+        if (!online) {
             setGameOn(true)
         }
-    }, [state.modalType])
+    }, [modalType])
 
     const handleUpdateCounter = async () => {
-        if (state.online?.roomId) {
-            const data = await getInfo(state.online.roomId)
+        if (online?.roomId) {
+            const data = await getInfo(online.roomId)
             setPlayers(data?.players)
             dispatch({ type: ACTIONS.SET_COUNTER, counter: data?.winCounter, turn: data?.turn })
         }
     }
 
     const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-        const newFieldState = [...state.field]
-        newFieldState[+e.currentTarget.id] = state.turn
+        const newFieldState = [...field]
+        newFieldState[+e.currentTarget.id] = turn
 
-        if (state.online) {
-            await update(ref(db, `rooms/${state.online.roomId}`), {
+        if (online) {
+            await update(ref(db, `rooms/${online.roomId}`), {
                 field: newFieldState,
-                turn: state.turn === 'o' ? 'x' : 'o'
+                turn: turn === 'o' ? 'x' : 'o'
             })
         } else {
             dispatch({ type: ACTIONS.MOVE, newFieldState })
@@ -48,17 +49,17 @@ function Field({ dispatch, state }: PropsType) {
     }
 
     useEffect(() => {
-        if (state.rival === 'computer' && !state.game.isOver && state.turn === 'x') {
+        if (rival === 'computer' && !state.game.isOver && turn === 'x') {
             setTimeout(() => {
                 dispatch({ type: ACTIONS.COMPUTER_MOVE })
             }, 1000)
         }
-    }, [state.turn, state.game.isOver])
+    }, [turn, state.game.isOver])
 
 
     useEffect(() => {
-        if (state.online) {
-            const gameRef = ref(db, `rooms/${state.online.roomId}/field`);
+        if (online) {
+            const gameRef = ref(db, `rooms/${online.roomId}/field`);
             const unsubscribe = onValue(gameRef, (snapshot) => {
                 if (snapshot.exists() &&
                     snapshot.val().some((cell: string) => cell !== '')) {
@@ -70,23 +71,23 @@ function Field({ dispatch, state }: PropsType) {
 
             return () => unsubscribe();
         }
-    }, [state.online?.roomId]);
+    }, [online?.roomId]);
 
 
     useEffect(() => {
 
-        if (state.online) {
+        if (online) {
 
-            const playersRef = ref(db, `rooms/${state.online.roomId}/players/`);
-            const roomRef = ref(db, `rooms/${state.online.roomId}/`);
+            const playersRef = ref(db, `rooms/${online.roomId}/players/`);
+            const roomRef = ref(db, `rooms/${online.roomId}/`);
 
             if (handleRoom === 'delete') {
                 onDisconnect(roomRef).remove();
 
             } else if (handleRoom === 'set') {
                 onDisconnect(roomRef).cancel()
-                onDisconnect(ref(db, `rooms/${state.online.roomId}/players/${state.online?.player}`)).set('');
-                onDisconnect(ref(db, `rooms/${state.online.roomId}/modals/${state.online?.player}`)).set(true);
+                onDisconnect(ref(db, `rooms/${online.roomId}/players/${online?.player}`)).set('');
+                onDisconnect(ref(db, `rooms/${online.roomId}/modals/${online?.player}`)).set(true);
             }
 
             const unsubscribe = onValue(playersRef, (snapshot) => {
@@ -112,14 +113,14 @@ function Field({ dispatch, state }: PropsType) {
 
             return () => unsubscribe();
         }
-    }, [state.online?.roomId, handleRoom]);
+    }, [online?.roomId, handleRoom]);
 
 
     const handleResetWinHistory = async () => {
         dispatch({ type: ACTIONS.RESET_HISTORY })
 
-        if (state.online) {
-            update(ref(db, `rooms/${state.online?.roomId}/winCounter`), {
+        if (online) {
+            update(ref(db, `rooms/${online?.roomId}/winCounter`), {
                 x: 0,
                 o: 0,
                 d: 0
@@ -131,8 +132,8 @@ function Field({ dispatch, state }: PropsType) {
             dispatch({ type: ACTIONS.RESET_GAME })
         })
 
-        if (state.online) {
-            await update(ref(db, `rooms/${state.online?.roomId}/players`), { [state.online.player]: '' })
+        if (online) {
+            await update(ref(db, `rooms/${online?.roomId}/players`), { [online.player]: '' })
             setPlayers({ x: '', o: '' })
         }
     }
@@ -145,21 +146,21 @@ function Field({ dispatch, state }: PropsType) {
                     <div className="o"></div>
                     <p>{state.winCounter.o} wins</p>
                     {
-                        state.online && players && <p>{players['o']}</p>
+                        online && players && <p>{players['o']}</p>
                     }
                 </div>
                 <div className="section section_draw">
                     <div className="draw"></div>
                     <p>{state.winCounter.d} draws</p>
                     {
-                        state.online && players && <p>vs</p>
+                        online && players && <p>vs</p>
                     }
                 </div>
-                <div className={`section section_x ${state.rival === 'computer' ? 'computer' : ''}`}>
+                <div className={`section section_x ${rival === 'computer' ? 'computer' : ''}`}>
                     <div className="x"></div>
                     <p>{state.winCounter.x} wins</p>
                     {
-                        state.online && players && <p>{players['x']}</p>
+                        online && players && <p>{players['x']}</p>
                     }
                 </div>
             </div>
@@ -167,13 +168,13 @@ function Field({ dispatch, state }: PropsType) {
                 <button onClick={handleResetWinHistory} className="btn">Reset win History</button>
                 <button onClick={handleResetGame} className="btn">Reset Game</button>
             </div>
-            <div className={`field ${state.turn === 'o' ? 'turnO' : 'turnX'}`}>
+            <div className={`field ${turn === 'o' ? 'turnO' : 'turnX'}`}>
                 {
-                    state.field.map((cell, i) => <button
+                    field.map((cell, i) => <button
                         disabled={cell !== '' ||
-                            state.rival === 'computer' && state.turn === 'x' ||
-                            state.online?.player === 'x' && state.turn === 'o' ||
-                            state.online?.player === 'o' && state.turn === 'x' ||
+                            rival === 'computer' && turn === 'x' ||
+                            online?.player === 'x' && turn === 'o' ||
+                            online?.player === 'o' && turn === 'x' ||
                             !gameOn ||
                             state.game.isOver}
                         key={i} onClick={handleClick} className={`cell ${cell}`} id={i.toString()}></button>)
@@ -186,14 +187,14 @@ function Field({ dispatch, state }: PropsType) {
             </div>
 
             {
-                state.rival === 'computer' && state.turn === 'x' &&
+                rival === 'computer' && turn === 'x' &&
                 !state.game.isOver && <div className="gif gif-think">
                     <img src={thinkingGif} />
                 </div>
             }
-            {state.online?.player === 'x' && state.turn === 'o' ||
-                state.online?.player === 'o' && state.turn === 'x' ||
-                state.online && !gameOn && <div className="gif gif-think">
+            {online?.player === 'x' && turn === 'o' ||
+                online?.player === 'o' && turn === 'x' ||
+                online && !gameOn && <div className="gif gif-think">
                     <p className='text rainbow'>Waiting...</p>
                     <img src={waitingGif} />
                 </div>
